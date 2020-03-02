@@ -54,13 +54,38 @@ import os
 from pathlib import Path
 from random import randint
 from random import choice
+from pythonds3.graphs import Graph
 
 ### Ajouter ici les signes de ponctuation Ã  retirer
 PONC = ["!", '"', "'", ")", "(", ",", ".", ";", ":", "?", "-", "_"]
 
 ###  Vous devriez inclure vos classes et mÃ©thodes ici, qui seront appellÃ©es Ã  partir du main
+def buildGraph(wordFile, mode):
+    d = {}
+    g = Graph()
+    wfile = open(wordFile, 'r')
+    # create buckets of words that differ by one letter
+    for line in wfile:
+        word = line[:-1]
+        print(word)
+        for i in range(len(word)):
+            bucket = word[:i] + '_' + word[i+1:]
+            if bucket in d:
+                d[bucket].append(word)
+            else:
+                d[bucket] = [word]
+    # add vertices and edges for words in the same bucket
+    for bucket in d.keys():
+        for word1 in d[bucket]:
+            for word2 in d[bucket]:
+                if word1 != word2:
+                    g.add_edge(word1, word2)
+    return g
 
-
+class Node:
+    def __init__(self, mots, frequence):
+        self.mots = mots
+        self.freq = frequence
 ### Main: lecture des paramÃ¨tres et appel des mÃ©thodes appropriÃ©es
 ###
 ###       argparse permet de lire les paramÃ¨tres sur la ligne de commande
@@ -129,3 +154,8 @@ if __name__ == "__main__":
             print("    " + aut[-1])
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
+    nodeTest = Node("Je veux", 1)
+    print(nodeTest.mots)
+    print(nodeTest.freq)
+    relativepath = rep_aut + "\\" + args.a + "\\" + args.f
+    graphe = buildGraph(relativepath, args.m)
