@@ -61,25 +61,28 @@ PONC = ["!", '"', "'", ")", "(", ",", ".", ";", ":", "?", "-", "_"]
 
 ###  Vous devriez inclure vos classes et mÃ©thodes ici, qui seront appellÃ©es Ã  partir du main
 def buildGraph(wordFile, mode):
-    d = {}
+    list_words = {}
+
     g = Graph()
     wfile = open(wordFile, 'r')
+    lastWord = ""
     # create buckets of words that differ by one letter
     for line in wfile:
-        word = line[:-1]
-        print(word)
-        for i in range(len(word)):
-            bucket = word[:i] + '_' + word[i+1:]
-            if bucket in d:
-                d[bucket].append(word)
+        words = line.split()
+        for eachWord in words:
+            eachWord = eachWord.lower()
+
+            if g.get_vertex(eachWord) is None:
+                g.set_vertex(eachWord)
+                g.get_vertex(eachWord).set_discovery_time(1)
             else:
-                d[bucket] = [word]
-    # add vertices and edges for words in the same bucket
-    for bucket in d.keys():
-        for word1 in d[bucket]:
-            for word2 in d[bucket]:
-                if word1 != word2:
-                    g.add_edge(word1, word2)
+                frequence = g.get_vertex(eachWord).get_discovery_time()
+                g.get_vertex(eachWord).set_discovery_time(frequence + 1)
+
+            if lastWord is not eachWord:
+                g.add_edge(g.get_vertex(lastWord), g.get_vertex(eachWord))
+
+            lastWord = eachWord;
     return g
 
 class Node:
@@ -154,7 +157,7 @@ if __name__ == "__main__":
             print("    " + aut[-1])
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
-    nodeTest = Node("Je veux", 1)
+    nodeTest = Node("Je veux des mots", 1)
     print(nodeTest.mots)
     print(nodeTest.freq)
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
