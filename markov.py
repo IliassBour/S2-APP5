@@ -66,20 +66,41 @@ def buildGraph(wordFile, mode):
     wfile = open(wordFile, 'r')
     # create buckets of words that differ by one letter
     for line in wfile:
-        word = line[:-1]
-        print(word)
-        for i in range(len(word)):
-            bucket = word[:i] + '_' + word[i+1:]
-            if bucket in d:
-                d[bucket].append(word)
+        ligne = line[:-1]
+#        print(ligne)
+        words = ligne.lower().split()
+
+        for word in words:
+#            print(word)
+            if word in d:
+                d[word].append(word)
             else:
-                d[bucket] = [word]
+                d[word] = [word]
+
+            if g.get_vertex(word) is None:
+                g.set_vertex(word)
+                g.get_vertex(word).set_discovery_time(1)
+            else:
+                frequence = g.get_vertex(word).get_discovery_time()
+                g.get_vertex(word).set_discovery_time(frequence + 1)
+            if words.index(word)+1 != words.__len__():
+                g.add_edge(word, words[words.index(word)+1])
+
+
+#    print(d)
+
+#        for i in range(len(word)):
+#            bucket = word[:i] + '_' + word[i+1:]
+#            if bucket in d:
+#                d[bucket].append(word)
+#            else:
+#                d[bucket] = [word]
     # add vertices and edges for words in the same bucket
-    for bucket in d.keys():
-        for word1 in d[bucket]:
-            for word2 in d[bucket]:
-                if word1 != word2:
-                    g.add_edge(word1, word2)
+#    for bucket in d.keys():
+#        for word1 in d[bucket]:
+#            for word2 in d[bucket]:
+#                if word1 != word2:
+#                    g.add_edge(word1, word2)
     return g
 
 class Node:
@@ -159,3 +180,7 @@ if __name__ == "__main__":
     print(nodeTest.freq)
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
     graphe = buildGraph(relativepath, args.m)
+
+    neighbors1 = graphe.get_vertex("la").get_neighbors()
+    for item in neighbors1:
+        print(item.get_key() + "   frequence: " + str(item.get_discovery_time()))
