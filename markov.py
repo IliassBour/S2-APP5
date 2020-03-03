@@ -85,8 +85,58 @@ def buildGraph(wordFile, mode):
                 g.get_vertex(word).set_discovery_time(frequence + 1)
             if words.index(word)+1 != words.__len__():
                 g.add_edge(word, words[words.index(word)+1])
+    return g
 
+def buildGraphRepertoire(rep_auth):
+    graphe = Graph()
+    return graphe
 
+def triBulle(tab, graphe):
+    if len(tab) == 1:
+        return tab
+    else:
+        tab1 = []
+        tab2 = []
+        taille1 = math.ceil(len(tab) / 2)
+        taille2 = len(tab) - taille1
+
+        for i in range(taille1):
+            tab1.append(tab[i])
+
+        for i in range(taille2):
+            tab2.append(tab[i + taille1])
+
+        tab1 = triBulle(tab1, graphe)
+        tab2 = triBulle(tab2, graphe)
+
+        i = 0
+        j = 0
+        for k in range(len(tab)):
+            if i >= len(tab1):
+                tab[k] = tab2[j]
+                j = j + 1
+            elif j >= len(tab2):
+                tab[k] = tab1[i]
+                i = i + 1
+            else:
+                if graphe.get_vertex(tab1[i]).get_discovery_time() > graphe.get_vertex(tab2[j]).get_discovery_time():
+                    tab[k] = tab1[i]
+                    i = i + 1
+                else:
+                    tab[k] = tab2[j]
+                    j = j + 1
+        return tab
+
+def calculFrequence(graphe,frequence):
+    tab = []
+    size = graphe.get_vertices()
+
+    for vertex in size:
+        tab.append(vertex)
+
+    tab = triBulle(tab, graphe)
+
+    return tab[frequence]
 #    print(d)
 
 #        for i in range(len(word)):
@@ -101,7 +151,7 @@ def buildGraph(wordFile, mode):
 #            for word2 in d[bucket]:
 #                if word1 != word2:
 #                    g.add_edge(word1, word2)
-    return g
+
 
 class Node:
     def __init__(self, mots, frequence):
@@ -175,12 +225,22 @@ if __name__ == "__main__":
             print("    " + aut[-1])
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
-    nodeTest = Node("Je veux", 1)
+    nodeTest = Node("Je veux", -1)
     print(nodeTest.mots)
     print(nodeTest.freq)
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
     graphe = buildGraph(relativepath, args.m)
+    vertex = calculFrequence(graphe, args.F)
 
+    print(vertex)
+
+    print(graphe.get_vertex(vertex).get_discovery_time())
+    """
     neighbors1 = graphe.get_vertex("la").get_neighbors()
     for item in neighbors1:
         print(item.get_key() + "   frequence: " + str(item.get_discovery_time()))
+    """
+
+    """
+    """
+
