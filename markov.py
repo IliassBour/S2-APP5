@@ -64,21 +64,49 @@ PONC = ["!", '"', "'", ")", "(", ",", ".", ";", ":", "?", "-", "_"]
 def buildGraph(wordFile, mode):
     g = Graph()
     wfile = open(wordFile, 'r')
+    last = ""
+    bigram = ""
+    nbWord = 1
     for line in wfile:
         ligne = line[:-1]
         words = re.split(r'[_;,.:;?!\"\'\s\t()\-]\s*', ligne.lower())
 
         for word in words:
-            if len(word) > 2:
-                #print(word)
-                if g.get_vertex(word) is None:
-                    g.set_vertex(word)
-                    g.get_vertex(word).set_discovery_time(1)
-                else:
-                    frequence = g.get_vertex(word).get_discovery_time()
-                    g.get_vertex(word).set_discovery_time(frequence + 1)
-                if words.index(word)+1 != words.__len__():
-                    g.add_edge(word, words[words.index(word)+1])
+            if mode is 1:
+        #            print(word)
+                    if g.get_vertex(word) is None:
+                        g.set_vertex(word)
+                        g.get_vertex(word).set_discovery_time(1)
+                    else:
+                        frequence = g.get_vertex(word).get_discovery_time()
+                        g.get_vertex(word).set_discovery_time(frequence + 1)
+
+                    if words.index(word) is not 0:
+                        g.add_edge(last, word)
+
+                    last = word
+
+            elif mode is 2:
+                    #            print(word)
+                    if nbWord is 1:
+                        bigram = word + " "
+                        nbWord = 2
+                    elif nbWord is 2:
+                        bigram = bigram + word
+                        nbWord = 1
+
+                        if g.get_vertex(bigram) is None:
+                            g.set_vertex(bigram)
+                            g.get_vertex(bigram).set_discovery_time(1)
+                        else:
+                            frequence = g.get_vertex(bigram).get_discovery_time()
+                            g.get_vertex(bigram).set_discovery_time(frequence + 1)
+
+                        if words.index(word) is not 0 or 1:
+                            g.add_edge(last, bigram)
+
+                        last = bigram
+
     return g
 
 def buildGraphRepertoire(rep_auth):
@@ -142,7 +170,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', required=True, help='Repertoire contenant les sous-repertoires des auteurs')
     parser.add_argument('-a', help='Auteur a traiter')
     parser.add_argument('-f', help='Fichier inconnu a comparer')
-    parser.add_argument('-m', required=True, type=int, choices=range(1, 2),
+    parser.add_argument('-m', required=True, type=int, choices=range(1, 3),
                         help='Mode (1 ou 2) - unigrammes ou digrammes')
     parser.add_argument('-F', type=int, help='Indication du rang (en frequence) du mot (ou bigramme) a imprimer')
     parser.add_argument('-G', type=int, help='Taille du texte a generer')
