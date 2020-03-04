@@ -238,10 +238,8 @@ def calculProximiteAuteur(gInconnu, rep_aut, authors, mode):
     for auteur in graphesA:
         commun = []
         for motIn in gInconnu.get_vertices():
-            for motAut in auteur.get_vertices():
-                if motIn == motAut:
-                    commun.append(motIn)
-                    #print(motIn)
+            if auteur.get_vertex(motIn) is not None:
+                commun.append(motIn)
 
         for mot in commun:
             ai = graphesA[i].get_vertex(mot).get_discovery_time() / len(commun)
@@ -251,6 +249,7 @@ def calculProximiteAuteur(gInconnu, rep_aut, authors, mode):
         i += 1
 
     for i in range(len(prox)):
+        prox[i] = round(prox[i], 2)
         print(authors[i] + ": " + str(prox[i]))
 
 
@@ -323,12 +322,13 @@ if __name__ == "__main__":
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
     pathTexts = rep_aut + "\\" + args.a
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
+    #relativepath = args.f
     gInconnu = buildGraph(relativepath, args.m)
 
-    #gra = buildGraphAuteur(pathTexts, args.m)
+    gra = buildGraphAuteur(pathTexts, args.m)
 
-    #for i in range (0, 10):
-        #vertex = calculFrequence(gInconnu, i)
-        #print(vertex + ": " + str(gInconnu.get_vertex(vertex).get_discovery_time()))
+    for i in range (0, 10):
+        vertex = calculFrequence(gInconnu, i)
+        print(vertex + ": " + str(gInconnu.get_vertex(vertex).get_discovery_time()))
 
     calculProximiteAuteur(gInconnu, rep_aut, authors, args.m)
