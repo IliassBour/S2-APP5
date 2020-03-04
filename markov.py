@@ -51,6 +51,7 @@ import argparse
 import glob
 import sys
 import os
+import re
 from pathlib import Path
 from random import randint
 from random import choice
@@ -61,37 +62,30 @@ PONC = ["!", '"', "'", ")", "(", ",", ".", ";", ":", "?", "-", "_"]
 
 ###  Vous devriez inclure vos classes et mÃ©thodes ici, qui seront appellÃ©es Ã  partir du main
 def buildGraph(wordFile, mode):
-    d = {}
     g = Graph()
     wfile = open(wordFile, 'r')
-    # create buckets of words that differ by one letter
     for line in wfile:
         ligne = line[:-1]
-#        print(ligne)
-        words = ligne.lower().split()
+        words = re.split(r'[_;,.:;?!\"\'\s\t()\-]\s*', ligne.lower())
 
         for word in words:
-#            print(word)
-            if word in d:
-                d[word].append(word)
-            else:
-                d[word] = [word]
-
-            if g.get_vertex(word) is None:
-                g.set_vertex(word)
-                g.get_vertex(word).set_discovery_time(1)
-            else:
-                frequence = g.get_vertex(word).get_discovery_time()
-                g.get_vertex(word).set_discovery_time(frequence + 1)
-            if words.index(word)+1 != words.__len__():
-                g.add_edge(word, words[words.index(word)+1])
+            if len(word) > 2:
+                #print(word)
+                if g.get_vertex(word) is None:
+                    g.set_vertex(word)
+                    g.get_vertex(word).set_discovery_time(1)
+                else:
+                    frequence = g.get_vertex(word).get_discovery_time()
+                    g.get_vertex(word).set_discovery_time(frequence + 1)
+                if words.index(word)+1 != words.__len__():
+                    g.add_edge(word, words[words.index(word)+1])
     return g
 
 def buildGraphRepertoire(rep_auth):
     graphe = Graph()
     return graphe
 
-def triBulle(tab, graphe):
+def triFusion(tab, graphe):
     if len(tab) == 1:
         return tab
     else:
@@ -106,8 +100,8 @@ def triBulle(tab, graphe):
         for i in range(taille2):
             tab2.append(tab[i + taille1])
 
-        tab1 = triBulle(tab1, graphe)
-        tab2 = triBulle(tab2, graphe)
+        tab1 = triFusion(tab1, graphe)
+        tab2 = triFusion(tab2, graphe)
 
         i = 0
         j = 0
@@ -134,29 +128,10 @@ def calculFrequence(graphe,frequence):
     for vertex in size:
         tab.append(vertex)
 
-    tab = triBulle(tab, graphe)
+    tab = triFusion(tab, graphe)
 
     return tab[frequence]
-#    print(d)
 
-#        for i in range(len(word)):
-#            bucket = word[:i] + '_' + word[i+1:]
-#            if bucket in d:
-#                d[bucket].append(word)
-#            else:
-#                d[bucket] = [word]
-    # add vertices and edges for words in the same bucket
-#    for bucket in d.keys():
-#        for word1 in d[bucket]:
-#            for word2 in d[bucket]:
-#                if word1 != word2:
-#                    g.add_edge(word1, word2)
-
-
-class Node:
-    def __init__(self, mots, frequence):
-        self.mots = mots
-        self.freq = frequence
 ### Main: lecture des paramÃ¨tres et appel des mÃ©thodes appropriÃ©es
 ###
 ###       argparse permet de lire les paramÃ¨tres sur la ligne de commande
@@ -225,22 +200,19 @@ if __name__ == "__main__":
             print("    " + aut[-1])
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
-    nodeTest = Node("Je veux", -1)
-    print(nodeTest.mots)
-    print(nodeTest.freq)
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
     graphe = buildGraph(relativepath, args.m)
-    vertex = calculFrequence(graphe, args.F)
+#    vertex = calculFrequence(graphe, args.F)
 
-    print(vertex)
 
-    print(graphe.get_vertex(vertex).get_discovery_time())
+    for i in range (0, 10):
+        vertex = calculFrequence(graphe, i)
+        print(vertex + ": " + str(graphe.get_vertex(vertex).get_discovery_time()))
+
+
     """
     neighbors1 = graphe.get_vertex("la").get_neighbors()
     for item in neighbors1:
         print(item.get_key() + "   frequence: " + str(item.get_discovery_time()))
-    """
-
-    """
     """
 
