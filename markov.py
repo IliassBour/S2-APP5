@@ -73,7 +73,7 @@ def buildGraph(wordFile, mode):
 
         for word in words:
             if mode is 1:
-        #            print(word)
+                if len(word) > 2:
                     if g.get_vertex(word) is None:
                         g.set_vertex(word)
                         g.get_vertex(word).set_discovery_time(1)
@@ -87,7 +87,7 @@ def buildGraph(wordFile, mode):
                     last = word
 
             elif mode is 2:
-                    #            print(word)
+                if len(word) > 2:
                     if nbWord is 1:
                         bigram = word + " "
                         nbWord = 2
@@ -109,7 +109,7 @@ def buildGraph(wordFile, mode):
 
     return g
 
-def buildGraphRepertoire(rep_auth):
+def buildGraphAuteur(rep_auth):
     graphe = Graph()
     return graphe
 
@@ -159,6 +159,32 @@ def calculFrequence(graphe,frequence):
     tab = triFusion(tab, graphe)
 
     return tab[frequence]
+
+def calculProximiteAuteur(gInconnu, rep_aut, authors, mode):
+    graphesA = []
+    for a in authors:
+        graphesA.append(buildGraphAuteur(rep_aut + "\\" + a, mode))
+
+    prox = []
+    i = 0
+    for auteur in graphesA:
+        commun = []
+        for motIn in gInconnu.get_vertices():
+            for motAut in auteur.get_vertices():
+                if motIn.key() is motAut.key():
+                    commun.append(motIn.key())
+                    print(motIn.key())
+
+        for mot in commun:
+            ai = graphesA.get_vertex(mot).get_discovery_time() / len(commun)
+            ti = gInconnu.get_vertex(mot).get_discovery_time() / len(commun)
+            prox[i] += pow(ai-ti, 2)
+        prox[i] = sqrt(prox[i])
+        i += 1
+
+    for i in prox:
+        print(authors[i] + ": " + str(prox[i]))
+
 
 ### Main: lecture des paramÃ¨tres et appel des mÃ©thodes appropriÃ©es
 ###
@@ -229,18 +255,9 @@ if __name__ == "__main__":
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
-    graphe = buildGraph(relativepath, args.m)
-#    vertex = calculFrequence(graphe, args.F)
+    gInconnu = buildGraph(relativepath, args.m)
 
 
     for i in range (0, 10):
-        vertex = calculFrequence(graphe, i)
-        print(vertex + ": " + str(graphe.get_vertex(vertex).get_discovery_time()))
-
-
-    """
-    neighbors1 = graphe.get_vertex("la").get_neighbors()
-    for item in neighbors1:
-        print(item.get_key() + "   frequence: " + str(item.get_discovery_time()))
-    """
-
+        vertex = calculFrequence(gInconnu, i)
+        print(vertex + ": " + str(gInconnu.get_vertex(vertex).get_discovery_time()))
