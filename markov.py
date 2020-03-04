@@ -109,7 +109,13 @@ def buildGraph(wordFile, mode):
 
     return g
 
-def buildGraphRepertoire(rep_auth):
+def additionnerGraph(graphe1, graphe2):
+    return 1
+def buildGraphRepertoire(rep):
+
+    textes = os.listdir(rep)
+    for i in textes:
+        print(i)
     graphe = Graph()
     return graphe
 
@@ -190,7 +196,6 @@ if __name__ == "__main__":
 
     rep_aut = os.path.normpath(rep_aut)
     authors = os.listdir(rep_aut)
-
     ### Enlever les signes de ponctuation (ou non) - DÃ©finis dans la liste PONC
     if args.P:
         remove_ponc = True
@@ -238,6 +243,15 @@ if __name__ == "__main__":
         print(vertex + ": " + str(graphe.get_vertex(vertex).get_discovery_time()))
 
 
+    print(graphe.get_vertex(vertex).get_discovery_time())
+
+    if os.path.isabs(args.a):
+        rep = args.a
+    else:
+        rep = os.path.join(cwd, args.a)
+    print(rep)
+
+    gra = buildGraphRepertoire(args.a)
     """
     neighbors1 = graphe.get_vertex("la").get_neighbors()
     for item in neighbors1:
