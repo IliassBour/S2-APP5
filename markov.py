@@ -63,13 +63,13 @@ PONC = ["!", '"', "'", ")", "(", ",", ".", ";", ":", "?", "-", "_"]
 ###  Vous devriez inclure vos classes et mÃ©thodes ici, qui seront appellÃ©es Ã  partir du main
 def buildGraph(wordFile, mode):
     g = Graph()
-    wfile = open(wordFile, 'r')
+    wfile = open(wordFile, 'r', encoding="utf-8")
     last = ""
     bigram = ""
     nbWord = 1
     for line in wfile:
         ligne = line[:-1]
-        words = re.split(r'[_;,.:;?!\"\'\s\t()\-]\s*', ligne.lower())
+        words = re.split(r'[_;,.:;\[\]?!\"\'\s\t()\-]\s*', ligne.lower())
 
         for word in words:
             if mode is 1:
@@ -172,7 +172,6 @@ def buildGraphAuteur(rep_texts, mode):
     graphe = Graph()
 
     for text in textes:
-        print(text)
         if first is 0:
             graphe = buildGraph(rep + "\\" + text, mode)
         else:
@@ -229,27 +228,29 @@ def calculFrequence(graphe,frequence):
 
 def calculProximiteAuteur(gInconnu, rep_aut, authors, mode):
     graphesA = []
+    prox = []
     for a in authors:
         graphesA.append(buildGraphAuteur(rep_aut + "\\" + a, mode))
+        prox.append(0)
 
-    prox = []
+
     i = 0
     for auteur in graphesA:
         commun = []
         for motIn in gInconnu.get_vertices():
             for motAut in auteur.get_vertices():
-                if motIn.key() is motAut.key():
-                    commun.append(motIn.key())
-                    print(motIn.key())
+                if motIn == motAut:
+                    commun.append(motIn)
+                    #print(motIn)
 
         for mot in commun:
-            ai = graphesA.get_vertex(mot).get_discovery_time() / len(commun)
+            ai = graphesA[i].get_vertex(mot).get_discovery_time() / len(commun)
             ti = gInconnu.get_vertex(mot).get_discovery_time() / len(commun)
             prox[i] += pow(ai-ti, 2)
-        prox[i] = sqrt(prox[i])
+        prox[i] = math.sqrt(prox[i])
         i += 1
 
-    for i in prox:
+    for i in range(len(prox)):
         print(authors[i] + ": " + str(prox[i]))
 
 
@@ -324,8 +325,10 @@ if __name__ == "__main__":
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
     gInconnu = buildGraph(relativepath, args.m)
 
-    gra = buildGraphAuteur(pathTexts, args.m)
+    #gra = buildGraphAuteur(pathTexts, args.m)
 
-    for i in range (0, 10):
-        vertex = calculFrequence(gInconnu, i)
-        print(vertex + ": " + str(gInconnu.get_vertex(vertex).get_discovery_time()))
+    #for i in range (0, 10):
+        #vertex = calculFrequence(gInconnu, i)
+        #print(vertex + ": " + str(gInconnu.get_vertex(vertex).get_discovery_time()))
+
+    calculProximiteAuteur(gInconnu, rep_aut, authors, args.m)
