@@ -109,8 +109,75 @@ def buildGraph(wordFile, mode):
 
     return g
 
-def buildGraphAuteur(rep_auth):
+def additionnerGraph(g, wordFile, mode):
+    wfile = open(wordFile, 'r')
+    last = ""
+    bigram = ""
+    nbWord = 1
+    for line in wfile:
+        ligne = line[:-1]
+        words = re.split(r'[_;,.:;?!\"\'\s\t()\-]\s*', ligne.lower())
+
+        for word in words:
+            if mode is 1:
+                if len(word) > 2:
+                    #            print(word)
+                    if g.get_vertex(word) is None:
+                        g.set_vertex(word)
+                        g.get_vertex(word).set_discovery_time(1)
+                    else:
+                        frequence = g.get_vertex(word).get_discovery_time()
+                        g.get_vertex(word).set_discovery_time(frequence + 1)
+
+                    if words.index(word) is not 0:
+                        g.add_edge(last, word)
+
+                    last = word
+
+            elif mode is 2:
+                if len(word) > 2:
+                    #            print(word)
+                    if nbWord is 1:
+                        bigram = word + " "
+                        nbWord = 2
+                    elif nbWord is 2:
+                        bigram = bigram + word
+                        nbWord = 1
+
+                        if g.get_vertex(bigram) is None:
+                            g.set_vertex(bigram)
+                            g.get_vertex(bigram).set_discovery_time(1)
+                        else:
+                            frequence = g.get_vertex(bigram).get_discovery_time()
+                            g.get_vertex(bigram).set_discovery_time(frequence + 1)
+
+                        if words.index(word) is not 0 or 1:
+                            g.add_edge(last, bigram)
+
+                        last = bigram
+
+    return g
+
+def buildGraphAuteur(rep_texts, mode):
+    if os.path.isabs(rep_texts):
+        rep = rep_texts
+    else:
+        rep = os.path.join(cwd, rep_texts)
+
+    rep = os.path.normpath(rep)
+    print("path : ", rep)
+    textes = os.listdir(rep)
+
+    first = 0
     graphe = Graph()
+
+    for text in textes:
+        print(text)
+        if first is 0:
+            graphe = buildGraph(rep + "\\" + text, mode)
+        else:
+            graphe = additionnerGraph(graphe, rep + "\\" + text, mode)
+
     return graphe
 
 def triFusion(tab, graphe):
@@ -216,7 +283,6 @@ if __name__ == "__main__":
 
     rep_aut = os.path.normpath(rep_aut)
     authors = os.listdir(rep_aut)
-
     ### Enlever les signes de ponctuation (ou non) - DÃ©finis dans la liste PONC
     if args.P:
         remove_ponc = True
@@ -254,9 +320,11 @@ if __name__ == "__main__":
             print("    " + aut[-1])
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
+    pathTexts = rep_aut + "\\" + args.a
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
     gInconnu = buildGraph(relativepath, args.m)
 
+    gra = buildGraphAuteur(pathTexts, args.m)
 
     for i in range (0, 10):
         vertex = calculFrequence(gInconnu, i)
