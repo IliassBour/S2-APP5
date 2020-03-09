@@ -260,8 +260,7 @@ def getWeight(tabWord, graphe):
         weight += word.get_discovery_time()
     return weight
 
-def buildRandomText(mode, nbWord, graphe, wordFile):
-    file = open(wordFile, "w")
+def buildRandomText(mode, nbWord, graphe):
     tab = []
     L = 1
     vertices = graphe.get_vertices()
@@ -312,9 +311,8 @@ def buildRandomText(mode, nbWord, graphe, wordFile):
                     text += " " + words[1]
                     break
 
-    print(text)
-    file.write(text)
-    file.close()
+    return text
+
 
 
 
@@ -389,37 +387,46 @@ if __name__ == "__main__":
 
     if args.F:
         # calcul de la fréquence du mot
-        if args.a:
+        if args.a: #pour un auteur
             graphAuteur = buildGraphAuteur(pathTexts, args.m)
             tabFreq = calculFrequence(graphAuteur)
 
-            print("Le " + args.F + "e element le plus frequent est de l'auteur " + args.a + " : " + tabFreq[args.F-1])
-            pass
-        ##elif args.A:
+            print("Le " + args.F + "e element le plus frequent est de l'auteur " + args.a + " : " + tabFreq[args.F - 1])
+        elif args.A: #pour chaque auteur
+            for author in authors:
+                graphAuteur = buildGraphAuteur(pathTexts, args.m)
+                tabFreq = calculFrequence(graphAuteur)
 
-            #pass
+                print("Le " + args.F + "e element le plus frequent est de l'auteur " + args.a + " : " + tabFreq[args.F - 1])
     if args.f:
         #calcul de la proximité du texte inconnu
-        if args.A:
-            #tous les auteurs
+        if args.A: #pour tous les auteurs
+            
             pass
-        if args.a:
-            #un auteur
+        if args.a: #pour un auteur
+
             pass
         pass
     if args.G and args.g:
         # génére un texte random
-        if args.a:
+        if args.a: #pour un auteur
+            file = open(args.g, "w")
             graphAuteur = buildGraphAuteur(pathTexts, args.m)
-            buildRandomText(args.m, args.G, graphAuteur, args.g)
-        if args.A:
+            text = buildRandomText(args.m, args.G, graphAuteur)
+
+            file.write(text)
+        if args.A: #pour tous les auteurs
             for author in authors:
-                print(author)
-                print(":: Début :: ")
+                file = open(args.g, "w")
+                file.write("Auteur : " + author + "\n:: Debut ""\n")
+
                 pathTexts = rep_aut + "\\" + author
                 graphAuteur = buildGraphAuteur(pathTexts, args.m)
-                buildRandomText(args.m, args.G, graphAuteur, args.g)
-                print(":: Fin ::")
+                text = buildRandomText(args.m, args.G, graphAuteur)
+
+                file.write(":: Fin ::\n")
+
+        file.close()
 
 
 
