@@ -64,7 +64,6 @@ PONC = ["!", '"', "'", ")", "(", ",", ".", ";", ":", "?", "-", "_"]
 def buildGraph(wordFile, mode):
     g = Graph()
     wfile = open(wordFile, 'r', encoding="utf-8")
-    suffix = []
     last = ""
     bigram = ""
     firstWord = 0
@@ -79,21 +78,14 @@ def buildGraph(wordFile, mode):
                     if g.get_vertex(word) is None:
                         g.set_vertex(word)
                         g.get_vertex(word).set_discovery_time(1)
-                        g.get_vertex(word).set_previous(suffix)
                     else:
                         frequence = g.get_vertex(word).get_discovery_time()
                         g.get_vertex(word).set_discovery_time(frequence + 1)
 
                     if firstWord == 0:
                         firstWord = 1
-                    elif last == word:
-                        pass
-                    else:
+                    elif last != word:
                         g.add_edge(last, word)
-                        sufixTab  = g.get_vertex(last).get_previous()
-                        sufixTab.append(word)
-                        g.get_vertex(last).set_previous(sufixTab)
-                        firstWord = 1
 
                     last = word
             elif mode is 2:
@@ -122,7 +114,6 @@ def buildGraph(wordFile, mode):
 
 def additionnerGraph(g, wordFile, mode):
     wfile = open(wordFile, 'r')
-    suffix = []
     last = ""
     bigram = ""
     nbWord = 1
@@ -137,20 +128,14 @@ def additionnerGraph(g, wordFile, mode):
                     if g.get_vertex(word) is None:
                         g.set_vertex(word)
                         g.get_vertex(word).set_discovery_time(1)
-                        g.get_vertex(word).set_previous(suffix)
                     else:
                         frequence = g.get_vertex(word).get_discovery_time()
                         g.get_vertex(word).set_discovery_time(frequence + 1)
 
                     if firstWord == 0:
                         firstWord = 1
-                    elif word == last:
-                        pass
-                    else:
+                    elif word != last:
                         g.add_edge(last, word)
-                        sufixTab = g.get_vertex(last).get_previous()
-                        sufixTab.append(word)
-                        g.get_vertex(last).set_previous(sufixTab)
 
                     last = word
             elif mode is 2:
@@ -275,11 +260,11 @@ def calculProximiteAuteur(gInconnu, rep_aut, authors, mode):
 def getWeight(tabWord, graphe):
     weight = 0
     for word in tabWord:
-        weight += graphe.get_vertex(word).get_discovery_time()
+        weight += word.get_discovery_time()
     return weight
 
-def buildRandomText(mode, nbWord, graphe):
-    text = ""
+def buildRandomText(mode, nbWord, graphe, wordFile):
+    file = open(wordFile, "w")
 
     if mode == 1:
         tab = []
@@ -290,22 +275,25 @@ def buildRandomText(mode, nbWord, graphe):
         word = choice(tab)
         text = word
         for suffix in range(nbWord - 1):
-            tabSuffix = graphe.get_vertex(word).get_previous()
+            tabSuffix = graphe.get_vertex(word).get_neighbors()
             poid = getWeight(tabSuffix, graphe)
             rand = randint(1, poid)
 
             for suffix in tabSuffix:
-                rand -= graphe.get_vertex(suffix).get_discovery_time()
-                if rand <= 0 and word != suffix:
-                    word = suffix
+                rand -= suffix.get_discovery_time()
+                if rand <= 0 and word != suffix.get_key():
+                    word = suffix.get_key()
                     break
 
             text += " " + word
-        print("Fin de fonction")
-        return text
+
+        print(text)
+        file.write(text)
     elif mode == 2:
 
-        return 2
+        pass
+
+    file.close()
 ### Main: lecture des paramÃ¨tres et appel des mÃ©thodes appropriÃ©es
 ###
 ###       argparse permet de lire les paramÃ¨tres sur la ligne de commande
@@ -380,8 +368,7 @@ if __name__ == "__main__":
 
     gra = buildGraphAuteur(pathTexts, args.m)
 
-    text  = buildRandomText(args.m, args.G, gra)
-    print(text)
+    buildRandomText(args.m, args.G, gra, args.g)
     """"
     for i in range (0, 10):
         vertex = calculFrequence(gInconnu, i)
