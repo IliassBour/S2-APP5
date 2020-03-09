@@ -66,6 +66,7 @@ def buildGraph(wordFile, mode):
     wfile = open(wordFile, 'r', encoding="utf-8")
     last = ""
     bigram = ""
+    firstWord = 0
     nbWord = 1
     for line in wfile:
         ligne = line[:-1]
@@ -82,22 +83,20 @@ def buildGraph(wordFile, mode):
                         frequence = g.get_vertex(word).get_discovery_time()
                         g.get_vertex(word).set_discovery_time(frequence + 1)
 
-                    if words.index(word) is not 0:
+                    if firstWord is not 0:
                         g.add_edge(last, word)
                         sufixTab  = g.get_vertex(last).get_previous()
                         sufixTab.append(word)
                         g.get_vertex(last).set_previous(sufixTab)
+                        firstWord = 1
 
                     last = word
-
             elif mode is 2:
                 if len(word) > 2:
-                    if nbWord is 1:
+                    if nbWord % 2 is 1:
                         bigram = word + " "
-                        nbWord = 2
-                    elif nbWord is 2:
+                    elif nbWord % 2 is 0:
                         bigram = bigram + word
-                        nbWord = 1
 
                         if g.get_vertex(bigram) is None:
                             g.set_vertex(bigram)
@@ -106,10 +105,17 @@ def buildGraph(wordFile, mode):
                             frequence = g.get_vertex(bigram).get_discovery_time()
                             g.get_vertex(bigram).set_discovery_time(frequence + 1)
 
-                        if words.index(word) is not 0 or 1:
+                        if firstWord is not 0:
                             g.add_edge(last, bigram)
+                            firstWord = 1
 
                         last = bigram
+
+            nbWord += 1
+
+
+    g.set_vertex("Nombre de mot dans le texte")
+    g.get_vertex("Nombre de mot dans le texte").set_discovery_time(nbWord-1)
 
     return g
 
@@ -117,6 +123,7 @@ def additionnerGraph(g, wordFile, mode):
     wfile = open(wordFile, 'r')
     last = ""
     bigram = ""
+    firstWord = 0
     nbWord = 1
     for line in wfile:
         ligne = line[:-1]
@@ -134,23 +141,22 @@ def additionnerGraph(g, wordFile, mode):
                         frequence = g.get_vertex(word).get_discovery_time()
                         g.get_vertex(word).set_discovery_time(frequence + 1)
 
-                    if words.index(word) is not 0:
+                    if firstWord is not 0:
                         g.add_edge(last, word)
-                        sufixTab  = g.get_vertex(last).get_previous()
+                        sufixTab = g.get_vertex(last).get_previous()
                         sufixTab.append(word)
                         g.get_vertex(last).set_previous(sufixTab)
+                        firstWord = 1
 
                     last = word
 
             elif mode is 2:
                 if len(word) > 2:
                     #            print(word)
-                    if nbWord is 1:
+                    if nbWord % 2 is 1:
                         bigram = word + " "
-                        nbWord = 2
-                    elif nbWord is 2:
+                    elif nbWord % 2 is 0:
                         bigram = bigram + word
-                        nbWord = 1
 
                         if g.get_vertex(bigram) is None:
                             g.set_vertex(bigram)
@@ -159,10 +165,16 @@ def additionnerGraph(g, wordFile, mode):
                             frequence = g.get_vertex(bigram).get_discovery_time()
                             g.get_vertex(bigram).set_discovery_time(frequence + 1)
 
-                        if words.index(word) is not 0 or 1:
+                        if firstWord is not 0:
                             g.add_edge(last, bigram)
+                            firstWord = 1
 
                         last = bigram
+
+            nbWord += 1
+
+    g.set_vertex("Nombre de mot dans le texte")
+    g.get_vertex("Nombre de mot dans le texte").set_discovery_time(nbWord - 1)
 
     return g
 
