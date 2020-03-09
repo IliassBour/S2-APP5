@@ -68,6 +68,7 @@ def buildGraph(wordFile, mode):
     firstWord = 0
     lastWord = ""
     lastBigram = ""
+
     for line in wfile:
         ligne = line[:-1]
         words = re.split(r'[_;,.:;\[\]?!\"\'\s\t()\-]\s*', ligne.lower())
@@ -108,8 +109,6 @@ def buildGraph(wordFile, mode):
                         lastBigram = bigram
                         lastWord = word + " "
 
-            nbWord += 1
-
     return g
 
 def additionnerGraph(g, wordFile, mode):
@@ -118,6 +117,7 @@ def additionnerGraph(g, wordFile, mode):
     firstWord = 0
     lastWord = ""
     lastBigram = ""
+
     for line in wfile:
         ligne = line[:-1]
         words = re.split(r'[_;,.:;?!\"\'\s\t()\-]\s*', ligne.lower())
@@ -157,8 +157,6 @@ def additionnerGraph(g, wordFile, mode):
 
                         lastBigram = bigram
                         lastWord = word + " "
-
-            nbWord += 1
 
     return g
 
@@ -261,17 +259,40 @@ def getWeight(tabWord, graphe):
     for word in tabWord:
         weight += word.get_discovery_time()
     return weight
+
 def buildRandomText(mode, nbWord, graphe, wordFile):
     file = open(wordFile, "w")
-    if mode == 2:
-        tab = []
-        vertices = graphe.get_vertices()
-        for vertex in vertices:
-            tab.append(vertex)
-        debut = choice(tab)
+    tab = []
+    L = 1
+    vertices = graphe.get_vertices()
+
+    for vertex in vertices:
+        tab.append(vertex)
+
+    debut = choice(tab)
+
+    if mode == 1:
+        text = debut
+        word = debut
+        for suffix in range(nbWord - 1):
+            tabSuffix = graphe.get_vertex(word).get_neighbors()
+            poid = getWeight(tabSuffix, graphe)
+            rand = randint(1, poid)
+
+            for suffix in tabSuffix:
+                rand -= suffix.get_discovery_time()
+                if rand <= 0 and word != suffix.get_key():
+                    word = suffix.get_key()
+                    if len(text) > 50 * L:
+                        text += "\n"
+                        L += 1
+                    break
+
+            text += " " + word
+
+    elif mode == 2:
         text = graphe.get_vertex(debut).get_key()
         bigramme = graphe.get_vertex(debut).get_key()
-        L = 1
 
         for i in range (1, nbWord):
             neighbors = graphe.get_vertex(bigramme).get_neighbors()
@@ -285,48 +306,18 @@ def buildRandomText(mode, nbWord, graphe, wordFile):
                 if randNext <= 0:
                     bigramme = item.get_key()
                     words = bigramme.split()
-                    if(len(text) > 50*L):
+                    if len(text) > 50*L:
                         text += "\n"
                         L += 1
                     text += " " + words[1]
                     break
 
-        print(text)
-        file.write(text)
+    print(text)
+    file.write(text)
     file.close()
 
 
-def buildRandomText(mode, nbWord, graphe, wordFile):
-    file = open(wordFile, "w")
 
-    if mode == 1:
-        tab = []
-        vertices = graphe.get_vertices()
-        for vertex in vertices:
-            tab.append(vertex)
-
-        word = choice(tab)
-        text = word
-        for suffix in range(nbWord - 1):
-            tabSuffix = graphe.get_vertex(word).get_neighbors()
-            poid = getWeight(tabSuffix, graphe)
-            rand = randint(1, poid)
-
-            for suffix in tabSuffix:
-                rand -= suffix.get_discovery_time()
-                if rand <= 0 and word != suffix.get_key():
-                    word = suffix.get_key()
-                    break
-
-            text += " " + word
-
-        print(text)
-        file.write(text)
-    elif mode == 2:
-
-        pass
-
-    file.close()
 ### Main: lecture des paramÃ¨tres et appel des mÃ©thodes appropriÃ©es
 ###
 ###       argparse permet de lire les paramÃ¨tres sur la ligne de commande
