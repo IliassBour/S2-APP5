@@ -386,13 +386,51 @@ if __name__ == "__main__":
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
     pathTexts = rep_aut + "\\" + args.a
+
+    if args.F:
+        # calcul de la fréquence du mot
+        if args.a:
+            graphAuteur = buildGraphAuteur(pathTexts, args.m)
+            tabFreq = calculFrequence(graphAuteur)
+
+            print("Le " + args.F + "e element le plus frequent est de l'auteur " + args.a + " : " + tabFreq[args.F-1])
+            pass
+        ##elif args.A:
+
+            #pass
+    if args.f:
+        #calcul de la proximité du texte inconnu
+        if args.A:
+            #tous les auteurs
+            pass
+        if args.a:
+            #un auteur
+            pass
+        pass
+    if args.G and args.g:
+        # génére un texte random
+        if args.a:
+            graphAuteur = buildGraphAuteur(pathTexts, args.m)
+            buildRandomText(args.m, args.G, graphAuteur, args.g)
+        if args.A:
+            for author in authors:
+                print(author)
+                print(":: Début :: ")
+                pathTexts = rep_aut + "\\" + author
+                graphAuteur = buildGraphAuteur(pathTexts, args.m)
+                buildRandomText(args.m, args.G, graphAuteur, args.g)
+                print(":: Fin ::")
+
+
+
+    pathTexts = rep_aut + "\\" + args.a
     relativepath = rep_aut + "\\" + args.a + "\\" + args.f
     #relativepath = args.f
     gInconnu = buildGraph(relativepath, args.m)
 
     gra = buildGraphAuteur(pathTexts, args.m)
 
-    buildRandomText(args.m, args.G, gra, args.g)
+
 
     vertex = calculFrequence(gInconnu)
     for i in range (0, 10):
