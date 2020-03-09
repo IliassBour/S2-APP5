@@ -1,4 +1,3 @@
-###
 ###  Gabarit pour l'application de traitement des frequences de mots dans les oeuvres d'auteurs divers
 ###  Le traitement des arguments a ete inclus:
 ###     Tous les arguments requis sont presents et accessibles dans args
@@ -7,6 +6,7 @@
 ###  Frederic Mailhot, 26 fevrier 2018
 ###    Revise 16 avril 2018
 ###    Revise 7 janvier 2020
+###   Modifié par IliassBour et PedroScocci
 
 ###  Parametres utilises, leur fonction et code a generer
 ###
@@ -228,13 +228,31 @@ def calculFrequence(graphe):
 
     return tab
 
-def calculProximiteAuteur(gInconnu, rep_aut, authors, mode):
+def calculProximiteAuteur(gInconnu, rep_aut, auteur, mode):
+    graphesA = buildGraphAuteur(rep_aut + "\\" + auteur, mode)
+    prox = 0
+    commun = []
+
+    for motIn in gInconnu.get_vertices():
+        if auteur.get_vertex(motIn) is not None:
+            commun.append(motIn)
+
+    for mot in commun:
+        ai = graphesA.get_vertex(mot).get_discovery_time() / len(commun)
+        ti = gInconnu.get_vertex(mot).get_discovery_time() / len(commun)
+        prox += pow(ai - ti, 2)
+
+    prox = math.sqrt(prox)
+
+    prox = round(prox, 2)
+    print(auteur + ": " + str(prox))
+
+def calculProximiteToutAuteur(gInconnu, rep_aut, authors, mode):
     graphesA = []
     prox = []
     for a in authors:
         graphesA.append(buildGraphAuteur(rep_aut + "\\" + a, mode))
         prox.append(0)
-
 
     i = 0
     for auteur in graphesA:
@@ -246,7 +264,7 @@ def calculProximiteAuteur(gInconnu, rep_aut, authors, mode):
         for mot in commun:
             ai = graphesA[i].get_vertex(mot).get_discovery_time() / len(commun)
             ti = gInconnu.get_vertex(mot).get_discovery_time() / len(commun)
-            prox[i] += pow(ai-ti, 2)
+            prox[i] += pow(ai - ti, 2)
         prox[i] = math.sqrt(prox[i])
         i += 1
 
@@ -312,9 +330,6 @@ def buildRandomText(mode, nbWord, graphe):
                     break
 
     return text
-
-
-
 
 ### Main: lecture des paramÃ¨tres et appel des mÃ©thodes appropriÃ©es
 ###
@@ -384,6 +399,7 @@ if __name__ == "__main__":
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
     pathTexts = rep_aut + "\\" + args.a
+    relativepath = rep_aut + "\\" + args.a + "\\" + args.f
 
     if args.F:
         # calcul de la fréquence du mot
@@ -400,22 +416,21 @@ if __name__ == "__main__":
                 print("Le " + args.F + "e element le plus frequent est de l'auteur " + args.a + " : " + tabFreq[args.F - 1])
     if args.f:
         #calcul de la proximité du texte inconnu
-        if args.A: #pour tous les auteurs
-            
-            pass
-        if args.a: #pour un auteur
+        if os.path.isabs(args.f):
+            relativepath = args.f
+        else:
+            relativepath = os.path.join(cwd, args.f)
 
-            pass
-        pass
+        relativepath = os.path.normpath(relativepath)
+        gInconnu = buildGraph(relativepath, args.m)
+
+        if args.A: #pour tous les auteurs
+            calculProximiteAuteur(gInconnu, rep_aut, args.m)
+        elif args.a: #pour un auteur
+            calculProximiteToutAuteur(gInconnu, rep_aut, authors, args.m)
     if args.G and args.g:
         # génére un texte random
-        if args.a: #pour un auteur
-            file = open(args.g, "w")
-            graphAuteur = buildGraphAuteur(pathTexts, args.m)
-            text = buildRandomText(args.m, args.G, graphAuteur)
-
-            file.write(text)
-        if args.A: #pour tous les auteurs
+        if args.A: #pour un auteur
             for author in authors:
                 file = open(args.g, "w")
                 file.write("Auteur : " + author + "\n:: Debut ""\n")
@@ -425,23 +440,11 @@ if __name__ == "__main__":
                 text = buildRandomText(args.m, args.G, graphAuteur)
 
                 file.write(":: Fin ::\n")
+        elif args.a: #pour tous les auteurs
+            file = open(args.g, "w")
+            graphAuteur = buildGraphAuteur(pathTexts, args.m)
+            text = buildRandomText(args.m, args.G, graphAuteur)
+
+            file.write(text)
 
         file.close()
-
-
-
-    pathTexts = rep_aut + "\\" + args.a
-    relativepath = rep_aut + "\\" + args.a + "\\" + args.f
-    #relativepath = args.f
-    gInconnu = buildGraph(relativepath, args.m)
-
-    gra = buildGraphAuteur(pathTexts, args.m)
-
-
-
-    vertex = calculFrequence(gInconnu)
-    for i in range (0, 10):
-        print(vertex[i] + ": " + str(gInconnu.get_vertex(vertex[i]).get_discovery_time()))
-
-    calculProximiteAuteur(gInconnu, rep_aut, authors, args.m)
-
