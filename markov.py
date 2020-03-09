@@ -65,9 +65,9 @@ def buildGraph(wordFile, mode):
     g = Graph()
     wfile = open(wordFile, 'r', encoding="utf-8")
     last = ""
-    bigram = ""
     firstWord = 0
-    nbWord = 1
+    lastWord = ""
+    lastBigram = ""
     for line in wfile:
         ligne = line[:-1]
         words = re.split(r'[_;,.:;\[\]?!\"\'\s\t()\-]\s*', ligne.lower())
@@ -90,10 +90,11 @@ def buildGraph(wordFile, mode):
                     last = word
             elif mode is 2:
                 if len(word) > 2:
-                    if nbWord % 2 is 1:
-                        bigram = word + " "
-                    elif nbWord % 2 is 0:
-                        bigram = bigram + word
+                    if firstWord == 0:
+                        lastWord = word + " "
+                        firstWord = 1
+                    else:
+                        bigram = lastWord + word
 
                         if g.get_vertex(bigram) is None:
                             g.set_vertex(bigram)
@@ -102,11 +103,10 @@ def buildGraph(wordFile, mode):
                             frequence = g.get_vertex(bigram).get_discovery_time()
                             g.get_vertex(bigram).set_discovery_time(frequence + 1)
 
-                        if firstWord is not 0:
-                            g.add_edge(last, bigram)
-                            firstWord = 1
+                        g.add_edge(lastBigram, bigram)
 
-                        last = bigram
+                        lastBigram = bigram
+                        lastWord = word + " "
 
             nbWord += 1
 
@@ -115,9 +115,9 @@ def buildGraph(wordFile, mode):
 def additionnerGraph(g, wordFile, mode):
     wfile = open(wordFile, 'r')
     last = ""
-    bigram = ""
-    nbWord = 1
     firstWord = 0
+    lastWord = ""
+    lastBigram = ""
     for line in wfile:
         ligne = line[:-1]
         words = re.split(r'[_;,.:;?!\"\'\s\t()\-]\s*', ligne.lower())
@@ -140,11 +140,11 @@ def additionnerGraph(g, wordFile, mode):
                     last = word
             elif mode is 2:
                 if len(word) > 2:
-                    #            print(word)
-                    if nbWord % 2 is 1:
-                        bigram = word + " "
-                    elif nbWord % 2 is 0:
-                        bigram = bigram + word
+                    if firstWord == 0:
+                        lastWord = word + " "
+                        firstWord = 1
+                    else:
+                        bigram = lastWord + word
 
                         if g.get_vertex(bigram) is None:
                             g.set_vertex(bigram)
@@ -153,11 +153,10 @@ def additionnerGraph(g, wordFile, mode):
                             frequence = g.get_vertex(bigram).get_discovery_time()
                             g.get_vertex(bigram).set_discovery_time(frequence + 1)
 
-                        if firstWord is not 0:
-                            g.add_edge(last, bigram)
-                            firstWord = 1
+                        g.add_edge(lastBigram, bigram)
 
-                        last = bigram
+                        lastBigram = bigram
+                        lastWord = word + " "
 
             nbWord += 1
 
@@ -220,7 +219,7 @@ def triFusion(tab, graphe):
                     j = j + 1
         return tab
 
-def calculFrequence(graphe,frequence):
+def calculFrequence(graphe):
     tab = []
     size = graphe.get_vertices()
 
@@ -229,7 +228,7 @@ def calculFrequence(graphe,frequence):
 
     tab = triFusion(tab, graphe)
 
-    return tab[frequence]
+    return tab
 
 def calculProximiteAuteur(gInconnu, rep_aut, authors, mode):
     graphesA = []
@@ -262,6 +261,40 @@ def getWeight(tabWord, graphe):
     for word in tabWord:
         weight += word.get_discovery_time()
     return weight
+def buildRandomText(mode, nbWord, graphe, wordFile):
+    file = open(wordFile, "w")
+    if mode == 2:
+        tab = []
+        vertices = graphe.get_vertices()
+        for vertex in vertices:
+            tab.append(vertex)
+        debut = choice(tab)
+        text = graphe.get_vertex(debut).get_key()
+        bigramme = graphe.get_vertex(debut).get_key()
+        L = 1
+
+        for i in range (1, nbWord):
+            neighbors = graphe.get_vertex(bigramme).get_neighbors()
+            weightTot = 0
+            for item in neighbors:
+                weightTot += item.get_discovery_time()
+            randNext = randint(1, weightTot)
+
+            for item in neighbors:
+                randNext -= item.get_discovery_time()
+                if randNext <= 0:
+                    bigramme = item.get_key()
+                    words = bigramme.split()
+                    if(len(text) > 50*L):
+                        text += "\n"
+                        L += 1
+                    text += " " + words[1]
+                    break
+
+        print(text)
+        file.write(text)
+    file.close()
+
 
 def buildRandomText(mode, nbWord, graphe, wordFile):
     file = open(wordFile, "w")
@@ -369,9 +402,10 @@ if __name__ == "__main__":
     gra = buildGraphAuteur(pathTexts, args.m)
 
     buildRandomText(args.m, args.G, gra, args.g)
-    """"
+
+    vertex = calculFrequence(gInconnu)
     for i in range (0, 10):
-        vertex = calculFrequence(gInconnu, i)
-        print(vertex + ": " + str(gInconnu.get_vertex(vertex).get_discovery_time()))
-    """
-    ##calculProximiteAuteur(gInconnu, rep_aut, authors, args.m)
+        print(vertex[i] + ": " + str(gInconnu.get_vertex(vertex[i]).get_discovery_time()))
+
+    calculProximiteAuteur(gInconnu, rep_aut, authors, args.m)
+
