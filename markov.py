@@ -77,12 +77,16 @@ def buildGraph(wordFile, mode):
                     if g.get_vertex(word) is None:
                         g.set_vertex(word)
                         g.get_vertex(word).set_discovery_time(1)
+                        g.get_vertex(last).set_previous([])
                     else:
                         frequence = g.get_vertex(word).get_discovery_time()
                         g.get_vertex(word).set_discovery_time(frequence + 1)
 
                     if words.index(word) is not 0:
                         g.add_edge(last, word)
+                        sufixTab  = g.get_vertex(last).get_previous()
+                        sufixTab.append(word)
+                        g.get_vertex(last).set_previous(sufixTab)
 
                     last = word
 
@@ -125,12 +129,16 @@ def additionnerGraph(g, wordFile, mode):
                     if g.get_vertex(word) is None:
                         g.set_vertex(word)
                         g.get_vertex(word).set_discovery_time(1)
+                        g.get_vertex(last).set_previous([])
                     else:
                         frequence = g.get_vertex(word).get_discovery_time()
                         g.get_vertex(word).set_discovery_time(frequence + 1)
 
                     if words.index(word) is not 0:
                         g.add_edge(last, word)
+                        sufixTab  = g.get_vertex(last).get_previous()
+                        sufixTab.append(word)
+                        g.get_vertex(last).set_previous(sufixTab)
 
                     last = word
 
