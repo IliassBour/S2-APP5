@@ -234,7 +234,7 @@ def calculProximiteAuteur(gInconnu, rep_aut, auteur, mode):
     commun = []
 
     for motIn in gInconnu.get_vertices():
-        if auteur.get_vertex(motIn) is not None:
+        if graphesA.get_vertex(motIn) is not None:
             commun.append(motIn)
 
     for mot in commun:
@@ -348,6 +348,7 @@ if __name__ == "__main__":
     parser.add_argument('-g', help='Nom de base du fichier de texte a generer')
     parser.add_argument('-v', action='store_true', help='Mode verbose')
     parser.add_argument('-P', action='store_true', help='Retirer la ponctuation')
+    parser.add_argument('-A', action='store_true', help='Retirer la ponctuation')
     args = parser.parse_args()
 
     ### Lecture du rÃ©pertoire des auteurs, obtenir la liste des auteurs
@@ -425,21 +426,21 @@ if __name__ == "__main__":
         gInconnu = buildGraph(relativepath, args.m)
 
         if args.A: #pour tous les auteurs
-            calculProximiteAuteur(gInconnu, rep_aut, args.m)
+            calculProximiteAuteur(gInconnu, rep_aut, args.a, args.m)
         elif args.a: #pour un auteur
             calculProximiteToutAuteur(gInconnu, rep_aut, authors, args.m)
     if args.G and args.g:
         # génére un texte random
         if args.A: #pour un auteur
+            file = open(args.g, "w", encoding="utf-8")
             for author in authors:
-                file = open(args.g, "w")
-                file.write("Auteur : " + author + "\n:: Debut ""\n")
+                file.write("Auteur : " + author + "\n:: Debut:\n")
 
                 pathTexts = rep_aut + "\\" + author
                 graphAuteur = buildGraphAuteur(pathTexts, args.m)
                 text = buildRandomText(args.m, args.G, graphAuteur)
 
-                file.write(":: Fin ::\n")
+                file.write(text + "\n:: Fin\n")
         elif args.a: #pour tous les auteurs
             file = open(args.g, "w")
             graphAuteur = buildGraphAuteur(pathTexts, args.m)
