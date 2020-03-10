@@ -348,7 +348,7 @@ if __name__ == "__main__":
     parser.add_argument('-g', help='Nom de base du fichier de texte a generer')
     parser.add_argument('-v', action='store_true', help='Mode verbose')
     parser.add_argument('-P', action='store_true', help='Retirer la ponctuation')
-    parser.add_argument('-A', action='store_true', help='Retirer la ponctuation')
+    parser.add_argument('-A', action='store_true', help='Evaluer tout les auteurs')
     args = parser.parse_args()
 
     ### Lecture du rÃ©pertoire des auteurs, obtenir la liste des auteurs
@@ -416,7 +416,7 @@ if __name__ == "__main__":
             graphAuteur = buildGraphAuteur(pathTexts, args.m)
             tabFreq = calculFrequence(graphAuteur)
 
-            print("Le " + str(args.F) + "e element le plus frequent est de l'auteur " + args.a + " : " + str(tabFreq[args.F - 1]))
+            print("Le " + str(args.F) + "e element le plus frequent de l'auteur " + args.a + " : " + str(tabFreq[args.F - 1]))
         elif args.A: #pour chaque auteur
             for author in authors:
                 pathTexts = rep_aut + "\\" + author
@@ -424,7 +424,7 @@ if __name__ == "__main__":
                 tabFreq = calculFrequence(graphAuteur)
 
                 for element in range(1, args.F+1    ):
-                    print("Le " + str(element) + "e element le plus frequent est de l'auteur " + author + " : " + str(tabFreq[element-1]))
+                    print("Le " + str(element) + "e element le plus frequent de l'auteur " + author + " : " + str(tabFreq[element-1]))
 
     if args.f: #calcul de la proximité du texte inconnu
         if os.path.isabs(args.f):
