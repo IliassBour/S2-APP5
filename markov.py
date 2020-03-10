@@ -167,7 +167,7 @@ def buildGraphAuteur(rep_texts, mode):
         rep = os.path.join(cwd, rep_texts)
 
     rep = os.path.normpath(rep)
-    print("path : ", rep)
+    # print("path : ", rep)
     textes = os.listdir(rep)
 
     first = 0
@@ -264,13 +264,13 @@ def calculProximiteToutAuteur(gInconnu, rep_aut, authors, mode):
         for mot in commun:
             ai = graphesA[i].get_vertex(mot).get_discovery_time() / len(commun)
             ti = gInconnu.get_vertex(mot).get_discovery_time() / len(commun)
-            prox[i] += pow(ai - ti, 2)
+            prox[i] += math.pow(ai - ti, 2)
         prox[i] = math.sqrt(prox[i])
         i += 1
 
-    for i in range(len(prox)):
-        prox[i] = round(prox[i], 2)
-        print(authors[i] + ": " + str(prox[i]))
+    for index in range(len(prox)):
+        prox[index] = round(prox[index], 2)
+        print(authors[index] + ": " + str(prox[index]))
 
 def getWeight(tabWord, graphe):
     weight = 0
@@ -399,11 +399,19 @@ if __name__ == "__main__":
             print("    " + aut[-1])
 
 ### Ã€ partir d'ici, vous devriez inclure les appels Ã  votre code
-    pathTexts = rep_aut + "\\" + args.a
-    relativepath = rep_aut + "\\" + args.a + "\\" + args.f
+    if args.A or args.a:
+        cwd = os.getcwd()
+        if os.path.isabs(args.d):
+            rep_aut = args.d
+        else:
+            rep_aut = os.path.join(cwd, args.d)
 
-    if args.F:
-        # calcul de la fréquence du mot
+        rep_aut = os.path.normpath(rep_aut)
+
+        if args.a:
+            pathTexts = rep_aut + "\\" + args.a
+
+    if args.F: # calcul de la fréquence du mot
         if args.a: #pour un auteur
             graphAuteur = buildGraphAuteur(pathTexts, args.m)
             tabFreq = calculFrequence(graphAuteur)
@@ -411,26 +419,30 @@ if __name__ == "__main__":
             print("Le " + str(args.F) + "e element le plus frequent est de l'auteur " + args.a + " : " + str(tabFreq[args.F - 1]))
         elif args.A: #pour chaque auteur
             for author in authors:
+                pathTexts = rep_aut + "\\" + author
                 graphAuteur = buildGraphAuteur(pathTexts, args.m)
                 tabFreq = calculFrequence(graphAuteur)
 
-                print("Le " + str(args.F) + "e element le plus frequent est de l'auteur " + args.a + " : " + str(tabFreq[args.F - 1]))
-    if args.f:
-        #calcul de la proximité du texte inconnu
+                for element in range(1, args.F+1    ):
+                    print("Le " + str(element) + "e element le plus frequent est de l'auteur " + author + " : " + str(tabFreq[element-1]))
+
+    if args.f: #calcul de la proximité du texte inconnu
         if os.path.isabs(args.f):
             relativepath = args.f
         else:
             relativepath = os.path.join(cwd, args.f)
-
+        #il faut que le fichier inconnu soit dans le même dossier que markov.py
         relativepath = os.path.normpath(relativepath)
+
+        #print("path du texte inconnnue " + relativepath)
+
         gInconnu = buildGraph(relativepath, args.m)
 
-        if args.A: #pour tous les auteurs
+        if args.a: #pour un auteur
             calculProximiteAuteur(gInconnu, rep_aut, args.a, args.m)
-        elif args.a: #pour un auteur
+        elif args.A: #pour tous les auteurs
             calculProximiteToutAuteur(gInconnu, rep_aut, authors, args.m)
-    if args.G and args.g:
-        # génére un texte random
+    if args.G and args.g: # génére un texte random
         if args.A: #pour un auteur
             file = open(args.g, "w", encoding="utf-8")
             for author in authors:
