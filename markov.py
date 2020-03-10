@@ -407,13 +407,13 @@ if __name__ == "__main__":
             graphAuteur = buildGraphAuteur(pathTexts, args.m)
             tabFreq = calculFrequence(graphAuteur)
 
-            print("Le " + args.F + "e element le plus frequent est de l'auteur " + args.a + " : " + tabFreq[args.F - 1])
+            print("Le " + str(args.F) + "e element le plus frequent est de l'auteur " + args.a + " : " + str(tabFreq[args.F - 1]))
         elif args.A: #pour chaque auteur
             for author in authors:
                 graphAuteur = buildGraphAuteur(pathTexts, args.m)
                 tabFreq = calculFrequence(graphAuteur)
 
-                print("Le " + args.F + "e element le plus frequent est de l'auteur " + args.a + " : " + tabFreq[args.F - 1])
+                print("Le " + str(args.F) + "e element le plus frequent est de l'auteur " + args.a + " : " + str(tabFreq[args.F - 1]))
     if args.f:
         #calcul de la proximité du texte inconnu
         if os.path.isabs(args.f):
