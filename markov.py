@@ -1,13 +1,3 @@
-###  Gabarit pour l'application de traitement des frequences de mots dans les oeuvres d'auteurs divers
-###  Le traitement des arguments a ete inclus:
-###     Tous les arguments requis sont presents et accessibles dans args
-###     Le traitement du mode verbose vous donne un exemple de l'utilisation des arguments
-###
-###  Frederic Mailhot, 26 fevrier 2018
-###    Revise 16 avril 2018
-###    Revise 7 janvier 2020
-###   Modifié par IliassBour et PedroScocci
-
 ###  Parametres utilises, leur fonction et code a generer
 ###
 ###  -d   Deja traite dans le gabarit:  la variable rep_auth contiendra le chemin complet vers le repertoire d'auteurs
@@ -61,6 +51,12 @@ from pythonds3.graphs import Graph
 PONC = ["!", '"', "'", ")", "(", ",", ".", ";", ":", "?", "-", "_"]
 
 ###  Vous devriez inclure vos classes et mÃ©thodes ici, qui seront appellÃ©es Ã  partir du main
+
+"""
+La fonction crée le Graph de tous les mots dans le fichier wordFile selon le paramètre mode qui choisi si le graphe
+est pour un unigramme ou un bigramme
+La fonction renvoi le graphe g qui a été modifier à travers le code
+"""
 def buildGraph(wordFile, mode):
     g = Graph()
     wfile = open(wordFile, 'r', encoding="utf-8")
@@ -69,12 +65,14 @@ def buildGraph(wordFile, mode):
     lastWord = ""
     lastBigram = ""
 
+    #Traverse le fichier ligne par ligne
     for line in wfile:
         ligne = line[:-1]
         words = re.split(r'[_;,.:;\[\]?!\"\'\s\t()\-]\s*', ligne.lower())
 
+        #Traverse la liste de words mot par mot
         for word in words:
-            if mode is 1:
+            if mode is 1: #unigramme
                 if len(word) > 2:
                     if g.get_vertex(word) is None:
                         g.set_vertex(word)
@@ -89,7 +87,7 @@ def buildGraph(wordFile, mode):
                         g.add_edge(last, word)
 
                     last = word
-            elif mode is 2:
+            elif mode is 2: #bigramme
                 if len(word) > 2:
                     if firstWord == 0:
                         lastWord = word + " "
@@ -111,6 +109,11 @@ def buildGraph(wordFile, mode):
 
     return g
 
+"""
+La fonction rajoute au graphe g passé en paramètre les mots du fichier wordFile selon le paramètre mode qui détermine si le graphe
+est un unigramme ou un bigramme
+La fonction renvoi le graphe g qui a été modifier à travers le code
+"""
 def additionnerGraph(g, wordFile, mode):
     wfile = open(wordFile, 'r')
     last = ""
@@ -118,12 +121,14 @@ def additionnerGraph(g, wordFile, mode):
     lastWord = ""
     lastBigram = ""
 
+    # Traverse le fichier ligne par ligne
     for line in wfile:
         ligne = line[:-1]
         words = re.split(r'[_;,.:;?!\"\'\s\t()\-]\s*', ligne.lower())
 
+        # Traverse la liste de words mot par mot
         for word in words:
-            if mode is 1:
+            if mode is 1: #unigramme
                 if len(word) > 2:
                     if g.get_vertex(word) is None:
                         g.set_vertex(word)
@@ -138,7 +143,7 @@ def additionnerGraph(g, wordFile, mode):
                         g.add_edge(last, word)
 
                     last = word
-            elif mode is 2:
+            elif mode is 2: #bigramme
                 if len(word) > 2:
                     if firstWord == 0:
                         lastWord = word + " "
@@ -160,6 +165,11 @@ def additionnerGraph(g, wordFile, mode):
 
     return g
 
+"""
+La fonction crée un graphe qui contient tout les mots des fichiers dans le répertoire renvoyer en entré et qui est un unigramme ou un bigramme
+selon mode 
+La fonction renvoi le graphe du répertoire
+"""
 def buildGraphAuteur(rep_texts, mode):
     if os.path.isabs(rep_texts):
         rep = rep_texts
@@ -181,6 +191,10 @@ def buildGraphAuteur(rep_texts, mode):
 
     return graphe
 
+"""
+La fonction fait le tri du tableau de mot en ordre décroissant de la fréquence du mot dans graphe selon le méthode de tri fusion
+La fonction renvoi un tableau de mot trié selon la fréquenc du mot
+"""
 def triFusion(tab, graphe):
     if len(tab) == 1:
         return tab
@@ -217,6 +231,10 @@ def triFusion(tab, graphe):
                     j = j + 1
         return tab
 
+"""
+La fonction calcul la fréquence de chaque mot du graphe
+La fonction renvoi le tableau des mots du graphe selon leur fréquence 
+"""
 def calculFrequence(graphe):
     tab = []
     size = graphe.get_vertices()
@@ -228,6 +246,9 @@ def calculFrequence(graphe):
 
     return tab
 
+"""
+La fonction calcul la proximité du graphe inconnu avec le répertoire d'un auteur et l'affiche sur la console
+"""
 def calculProximiteAuteur(gInconnu, rep_aut, auteur, mode):
     graphesA = buildGraphAuteur(rep_aut + "\\" + auteur, mode)
     prox = 0
@@ -247,6 +268,9 @@ def calculProximiteAuteur(gInconnu, rep_aut, auteur, mode):
     prox = round(prox, 2)
     print(auteur + ": " + str(prox))
 
+"""
+La fonction calcul la proximité du graphe inconnu avec le répertoire de chaque auteur de rep_aut et l'affiche sur la console
+"""
 def calculProximiteToutAuteur(gInconnu, rep_aut, authors, mode):
     graphesA = []
     prox = []
@@ -272,12 +296,18 @@ def calculProximiteToutAuteur(gInconnu, rep_aut, authors, mode):
         prox[index] = round(prox[index], 2)
         print(authors[index] + ": " + str(prox[index]))
 
+"""
+La fonction calcul le poid total de tableau tabWord selon la fréquence des mots de tabWord dans graphe
+"""
 def getWeight(tabWord, graphe):
     weight = 0
     for word in tabWord:
         weight += word.get_discovery_time()
     return weight
 
+"""
+La fonction génere un texte aléatoire du nombre de mots de nbWord selon les mots et leur fréquence dans graphe 
+"""
 def buildRandomText(mode, nbWord, graphe):
     tab = []
     L = 1
